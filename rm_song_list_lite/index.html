@@ -73,7 +73,7 @@
     <table border="1" style="display: none;">
         <thead>
             <tr>
-                <th colspan="12">
+                <th colspan="13">
                     <input type="search" id="search" placeholder="点击此处搜索（可输入歌曲名字、作者或难度，回车搜索）">
                 </th>
             </tr>
@@ -82,6 +82,7 @@
                 <th colspan="9">难度</th>
                 <th rowspan="2">作者</th>
                 <th rowspan="2">BPM</th>
+                <th rowspan="2">时长</th>
             </tr>
             <tr>
                 <th colspan="3">4KEY</th>
@@ -146,6 +147,10 @@
                         td.innerHTML = song[j];
                         tr.appendChild(td);
                     }
+                    var td = document.createElement("td");
+                    var sec = song[12] % 60;
+                    td.innerHTML = parseInt(song[12] / 60) + ':' + (sec < 10 ? '0' : '') + sec;
+                    tr.appendChild(td);
                 }
             }
         }
