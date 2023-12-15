@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>节奏大师歌曲列表Lite版</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid #fff;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th {
+            background-color: #6cf;
+            color: #fff;
+            padding: 0.5em;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        td {
+            padding: 0.5em 1em;
+        }
+
+        tr:nth-child(2n) {
+            background-color: #c4eeff;
+        }
+
+        tr:nth-child(2n+1) {
+            background-color: #eee;
+        }
+
+        a {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #search {
+            width: 100%;
+            font-size: large;
+            border: 0;
+            margin: 0;
+            outline: 0;
+            background-color: #6cf;
+            color: #fff;
+
+        }
+
+        #search::placeholder {
+            color: #fff;
+        }
+
+        #check {
+            text-align: center;
+        }
+    </style>
+    <script src="js/xxtea.min.js"></script>
+    <script src="js/secret.js"></script>
+</head>
+
+<body>
+    <div id="check">
+        请输入密码
+        <input type="password" id="password">
+        <button id="ok">确定</button>
+    </div>
+    <table border="1" style="display: none;">
+        <thead>
+            <tr>
+                <th colspan="12">
+                    <input type="search" id="search" placeholder="点击此处搜索（可输入歌曲名字、作者或难度，回车搜索）">
+                </th>
+            </tr>
+            <tr>
+                <th rowspan="2">歌曲名称</th>
+                <th colspan="9">难度</th>
+                <th rowspan="2">作者</th>
+                <th rowspan="2">BPM</th>
+            </tr>
+            <tr>
+                <th colspan="3">4KEY</th>
+                <th colspan="3">5KEY</th>
+                <th colspan="3">6KEY</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+    <script>
+        var table = document.querySelector('table');
+        var check = document.getElementById('check');
+        var password = localStorage['rm_song_list_lite_password'];
+        var songList;
+        try {
+            songList = JSON.parse(XXTEA.decryptFromBase64(secret, password));
+            check.style.display = 'none';
+            table.style.display = 'table';
+        } catch (e) {
+            console.log(e);
+            delete localStorage['rm_song_list_lite_password'];
+        }
+
+        var pwInput = document.getElementById('password');
+        function start() {
+            try {
+                songList = JSON.parse(XXTEA.decryptFromBase64(secret, pwInput.value));
+                localStorage['rm_song_list_lite_password'] = pwInput.value;
+                check.style.display = 'none';
+                table.style.display = 'table';
+                createTable("");
+            } catch (e) {
+                console.log(e);
+                alert('密码错误，请重试');
+                pwInput.value = '';
+            }
+        }
+        pwInput.onkeydown = event => {
+            if (event.keyCode == 13) start();
+        }
+        document.getElementById('ok').onclick = start;
+
+        var tbody = document.getElementById("tbody");
+        function createTable(text) {
+            tbody.innerHTML = "";
+            for (var i = 0; i < songList.length; i++) {
+                var song = songList[i];
+                var found = text == "";
+                for (var j = 0; j < 11 && !found; j++) {
+                    if (j == 0 || j == 10) {
+                        found = song[j].toLowerCase().indexOf(text.toLowerCase()) != -1;
+                    } else {
+                        found = song[j] == text;
+                    }
+                }
+                if (found) {
+                    var tr = document.createElement("tr");
+                    tbody.appendChild(tr);
+                    var unavailable = false;
+                    for (var j = 0; j < 12; j++) {
+                        var td = document.createElement("td");
+                        td.innerHTML = song[j];
+                        tr.appendChild(td);
+                    }
+                }
+            }
+        }
+        if (songList) createTable("");
+        document.getElementById("search").onchange = function () {
+            createTable(this.value);
+        }
+    </script>
+</body>
+
+</html>
