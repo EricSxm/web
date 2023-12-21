@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -97,10 +96,17 @@
         var check = document.getElementById('check');
         var password = localStorage['rm_song_list_lite_password'];
         var songList;
+        var tbody = document.getElementById("tbody");
+
         try {
             songList = JSON.parse(XXTEA.decryptFromBase64(secret, password));
             check.style.display = 'none';
             table.style.display = 'table';
+            createTable("");
+            if (localStorage['rm_song_list_lite_version'] != version) {
+                localStorage['rm_song_list_lite_version'] = version;
+                setTimeout(() => alert('歌曲列表已更新'));
+            }
         } catch (e) {
             console.log(e);
             delete localStorage['rm_song_list_lite_password'];
@@ -111,6 +117,7 @@
             try {
                 songList = JSON.parse(XXTEA.decryptFromBase64(secret, pwInput.value));
                 localStorage['rm_song_list_lite_password'] = pwInput.value;
+                localStorage['rm_song_list_lite_version'] = version;
                 check.style.display = 'none';
                 table.style.display = 'table';
                 createTable("");
@@ -125,7 +132,6 @@
         }
         document.getElementById('ok').onclick = start;
 
-        var tbody = document.getElementById("tbody");
         function createTable(text) {
             tbody.innerHTML = "";
             for (var i = 0; i < songList.length; i++) {
@@ -154,7 +160,6 @@
                 }
             }
         }
-        if (songList) createTable("");
         document.getElementById("search").onchange = function () {
             createTable(this.value);
         }
